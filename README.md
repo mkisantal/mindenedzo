@@ -1,0 +1,2 @@
+# mindenedzo
+Omnicoach probafeladat
