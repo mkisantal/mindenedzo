@@ -5,25 +5,26 @@ from PIL import Image
 import csv
 import argparse
 
-TARGETS = ['eliminations', 'kills', 'time', 'damage', 'healing', 'deaths']
+KEYS = ['ELIMINATIONS', 'OBJECTIVE KILLS', 'OBJECTIVE TIME',
+           'HERO DAMAGE DONE', 'HEALING DONE', 'DEATHS']
 tesseract_config = '--psm 7 --oem 0 -c tessedit_char_whitelist=0123456789,:'
 
 
 def extract_crops(np_img):
     
     crop_dict = dict()
-    crop_dict['eliminations'] = np_img[890:920, 132:157]  # eliminations
-    crop_dict['kills'] = np_img[890:920, 382:406]  # objective kills
-    crop_dict['time'] = np_img[890:920, 625:700]  # objective time
-    crop_dict['damage'] = np_img[955:980, 130:205]  # damage done
-    crop_dict['healing'] = np_img[955:980, 380:405]  # healing done
-    crop_dict['deaths'] = np_img[955:980, 632:654]  # deaths 
+    crop_dict[KEYS[0]] = np_img[890:920, 132:157]  # eliminations
+    crop_dict[KEYS[1]] = np_img[890:920, 382:406]  # objective kills
+    crop_dict[KEYS[2]] = np_img[890:920, 625:700]  # objective time
+    crop_dict[KEYS[3]] = np_img[955:980, 130:205]  # damage done
+    crop_dict[KEYS[4]] = np_img[955:980, 380:405]  # healing done
+    crop_dict[KEYS[5]] = np_img[955:980, 632:654]  # deaths 
     return crop_dict
 
 
 def ocr(crop_dict):
     ocr_results = dict()
-    for key in TARGETS:
+    for key in KEYS:
         ocr_result = pytesseract.image_to_string(crop_dict[key],
                                                  config=tesseract_config)
         if ocr_result == '':
@@ -34,7 +35,7 @@ def ocr(crop_dict):
             else:
                 ocr_result = '1'
 
-        if key == 'damage':  # removing commas
+        if key == 'HERO DAMAGE DONE':  # removing commas
             ocr_result = ocr_result.replace(',', '')
 
         ocr_results[key] = ocr_result
@@ -42,8 +43,8 @@ def ocr(crop_dict):
    
     
 def print_results(ocr_results):
-    for key in TARGETS:
-        print('{}: {}'.format(key, ocr_results[key]))
+    for key, emoji in zip(KEYS, ['❌', '☠️', '⏱️', '💥', '🏥', '⚰️']):
+        print('\t{}  {}: {}'.format(emoji, key, ocr_results[key]))
     print('--'*5)
     return
 
