@@ -6,19 +6,19 @@ import csv
 import argparse
 
 KEYS = ['ELIMINATIONS', 'OBJECTIVE KILLS', 'OBJECTIVE TIME',
-           'HERO DAMAGE DONE', 'HEALING DONE', 'DEATHS']
+        'HERO DAMAGE DONE', 'HEALING DONE', 'DEATHS']
 tesseract_config = '--psm 7 --oem 0 -c tessedit_char_whitelist=0123456789,:'
 
 
 def extract_crops(np_img):
-    
+
     crop_dict = dict()
     crop_dict[KEYS[0]] = np_img[890:920, 132:157]  # eliminations
     crop_dict[KEYS[1]] = np_img[890:920, 382:406]  # objective kills
     crop_dict[KEYS[2]] = np_img[890:920, 625:700]  # objective time
     crop_dict[KEYS[3]] = np_img[955:980, 130:205]  # damage done
     crop_dict[KEYS[4]] = np_img[955:980, 380:405]  # healing done
-    crop_dict[KEYS[5]] = np_img[955:980, 632:654]  # deaths 
+    crop_dict[KEYS[5]] = np_img[955:980, 632:654]  # deaths
     return crop_dict
 
 
@@ -29,7 +29,8 @@ def ocr(crop_dict):
                                                  config=tesseract_config)
         if ocr_result == '':
             crop = np.hstack([crop_dict[key], crop_dict[key], crop_dict[key]])
-            ocr_result = pytesseract.image_to_string(crop, config=tesseract_config)
+            ocr_result = pytesseract.image_to_string(crop,
+                                                     config=tesseract_config)
             if len(ocr_result) > 2:
                 ocr_result = ocr_result[len(ocr_result)//3]
             else:
@@ -40,8 +41,8 @@ def ocr(crop_dict):
 
         ocr_results[key] = ocr_result
     return ocr_results
-   
-    
+
+
 def print_results(ocr_results):
     for key, emoji in zip(KEYS, ['❌', '☠️', '⏱️', '💥', '🏥', '⚰️']):
         print('\t{}  {}: {}'.format(emoji, key, ocr_results[key]))
@@ -64,8 +65,8 @@ def load(img_path):
     pil_img = Image.open(img_path)
     np_img = np.array(pil_img)
     return np_img
-             
-             
+
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -91,9 +92,6 @@ def main():
         write_results(results, img_name)
     print('Processing done. ✅')
 
+
 if __name__ == '__main__':
     main()
-
-              
-    
-    

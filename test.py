@@ -3,13 +3,15 @@ import numpy as np
 
 import extract
 
+
 class TestLoad(unittest.TestCase):
     def test_load(self):
         test_image_path = './test_images/ScreenShot_19-02-07_16-29-44-000.jpg'
         self.assertIsInstance(extract.load(test_image_path), np.ndarray)
 
+
 class TestExtractCrops(unittest.TestCase):
-    
+
     def test_extract_crops(self):
         dummy_np_image = np.zeros([1080, 1920, 3], dtype=np.uint8)
         crops = extract.extract_crops(dummy_np_image)
@@ -21,26 +23,27 @@ class TestExtractCrops(unittest.TestCase):
             self.assertTrue(key in valid_keys)
             self.assertIsInstance(crops[key], np.ndarray)
             self.assertTrue(crops[key].size > 100)
-            
+
+
 class TestOcr(unittest.TestCase):
-    
+
     def test_ocr(self):
         dummy_char_one = np.zeros([20, 20, 3], dtype=np.uint8)
         dummy_char_one[2:18, 8:12, :] = 255
-        
+
         valid_keys = set(['ELIMINATIONS', 'OBJECTIVE KILLS', 'OBJECTIVE TIME',
                           'HERO DAMAGE DONE', 'HEALING DONE', 'DEATHS'])
         dummy_crop_dict = {key: dummy_char_one for key in valid_keys}
         results = extract.ocr(dummy_crop_dict)
-        
+
         self.assertIsInstance(results, dict)
         for key in valid_keys:
             res = results[key]
             self.assertIsInstance(res, str)
-    
-    
+
+
 class IntegrationTest(unittest.TestCase):
-    
+
     def test_integration(self):
         test_images = ['./test_images/ScreenShot_19-02-07_16-29-44-000.jpg',
                        './test_images/ScreenShot_19-02-07_16-30-03-000.jpg',
@@ -71,11 +74,11 @@ class IntegrationTest(unittest.TestCase):
                               'HERO DAMAGE DONE': '1825',
                               'HEALING DONE': '0',
                               'DEATHS': '0'})
-            
+
         for result, ground_truth in zip(results, ground_truths):
             for key in result.keys():
                 self.assertEqual(result[key], ground_truth[key])
-            
-    
+
+
 if __name__ == '__main__':
     unittest.main()
