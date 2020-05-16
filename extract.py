@@ -2,13 +2,8 @@ import pytesseract
 import os
 import numpy as np
 from PIL import Image
-
-
-# path and names
-img_dir = '/home/ubuntu/data/Screenshots/'
-img_name_list = sorted(os.listdir(img_dir))
-example_name = img_name_list[-1]
-img_name_list = img_name_list[:-1]
+import csv
+import argparse
 
 TARGETS = ['eliminations', 'kills', 'time', 'damage', 'healing', 'deaths']
 tesseract_config = '--psm 7 --oem 0 -c tessedit_char_whitelist=0123456789,:'
@@ -38,6 +33,10 @@ def ocr(crop_dict):
                 ocr_result = ocr_result[len(ocr_result)//3]
             else:
                 ocr_result = '1'
+
+        if key == 'damage':  # removing commas
+            ocr_result = ocr_result.replace(',', '')
+
         ocr_results[key] = ocr_result
     return ocr_results
    
@@ -49,6 +48,17 @@ def print_results(ocr_results):
     return
 
 
+def write_results(ocr_results, img_name):
+    if img_name.endswith('.jpg'):
+        img_name = img_name[:-4]
+    out_path = 'result_{}.csv'.format(img_name)
+    with open(out_path, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        for key in ocr_results.keys():
+            csv_writer.writerow([key, str(ocr_results[key])])
+    return
+
+
 def load(img_path):
     pil_img = Image.open(img_path)
     np_img = np.array(pil_img)
@@ -56,15 +66,29 @@ def load(img_path):
              
              
 def main():
-    print('started')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--img_dir', type=str,
+                        default='/home/ubuntu/data/Screenshots/',
+                        help="directory of images to be processedd")
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help="shows output", default=False)
+    args = parser.parse_args()
+
+    img_name_list = [img for img in sorted(os.listdir(args.img_dir))
+                     if img.endswith('.jpg')]
+
+    print('Processing started. 🚀')
     for img_name in img_name_list:
         print(img_name)
-        img_path = os.path.join(img_dir, img_name)
+        img_path = os.path.join(args.img_dir, img_name)
         np_img = load(img_path)
         crops = extract_crops(np_img)
         results = ocr(crops)
-        print_results(results)
-
+        if args.verbose:
+            print_results(results)
+        write_results(results, img_name)
+    print('Processing done. ✅')
 
 if __name__ == '__main__':
     main()
