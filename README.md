@@ -8,10 +8,11 @@ This repository contains a solutin for the Omnicoach technical assignment. The t
   
  ### Installation
  
- The solution relies on Tesseract for OCR, this software and its python bindings has to be installed first.
+ The solution relies PIL for image loading, and on Tesseract for OCR. this software and its python bindings has to be installed.
  ```
  sudo apt install tesseract-ocr
  pip install pytesseract
+ pip install pillow
  ```
  
 ### Running the solution and tests
