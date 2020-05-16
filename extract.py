@@ -7,10 +7,14 @@ import argparse
 
 KEYS = ['ELIMINATIONS', 'OBJECTIVE KILLS', 'OBJECTIVE TIME',
         'HERO DAMAGE DONE', 'HEALING DONE', 'DEATHS']
-tesseract_config = '--psm 7 --oem 0 -c tessedit_char_whitelist=0123456789,:'
+TESSERACT_CONFIG = '--psm 7 --oem 0 -c tessedit_char_whitelist=0123456789,:'
 
 
 def extract_crops(np_img):
+
+    '''
+        Function for getting the crops that contain the relevant characters.
+    '''
 
     crop_dict = dict()
     crop_dict[KEYS[0]] = np_img[890:920, 132:157]  # eliminations
@@ -23,14 +27,22 @@ def extract_crops(np_img):
 
 
 def ocr(crop_dict):
+
+    '''
+        Calling Tesseract for OCR
+    '''
+
     ocr_results = dict()
     for key in KEYS:
         ocr_result = pytesseract.image_to_string(crop_dict[key],
-                                                 config=tesseract_config)
+                                                 config=TESSERACT_CONFIG)
+
+        # Tesseract does not return if there are less than 3 characters
+        # Workaround: stacking crops
         if ocr_result == '':
             crop = np.hstack([crop_dict[key], crop_dict[key], crop_dict[key]])
             ocr_result = pytesseract.image_to_string(crop,
-                                                     config=tesseract_config)
+                                                     config=TESSERACT_CONFIG)
             if len(ocr_result) > 2:
                 ocr_result = ocr_result[len(ocr_result)//3]
             else:
@@ -44,6 +56,11 @@ def ocr(crop_dict):
 
 
 def print_results(ocr_results):
+
+    '''
+        Printing results.
+    '''
+
     for key, emoji in zip(KEYS, ['❌', '☠️', '⏱️', '💥', '🏥', '⚰️']):
         print('\t{}  {}: {}'.format(emoji, key, ocr_results[key]))
     print('--'*5)
@@ -51,6 +68,11 @@ def print_results(ocr_results):
 
 
 def write_results(ocr_results, img_name):
+
+    '''
+        Saving results to .csv file
+    '''
+
     if img_name.endswith('.jpg'):
         img_name = img_name[:-4]
     out_path = 'result_{}.csv'.format(img_name)
@@ -62,12 +84,21 @@ def write_results(ocr_results, img_name):
 
 
 def load(img_path):
+
+    '''
+        Function for getting the crops that contain the relevant characters.
+    '''
+
     pil_img = Image.open(img_path)
     np_img = np.array(pil_img)
     return np_img
 
 
 def main():
+
+    '''
+        Arg parsing, image processing loop.
+    '''
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--img_dir', type=str,

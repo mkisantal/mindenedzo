@@ -5,12 +5,21 @@ import extract
 
 
 class TestLoad(unittest.TestCase):
+
+    '''
+        Test case for load() function.
+    '''
+
     def test_load(self):
         test_image_path = './test_images/ScreenShot_19-02-07_16-29-44-000.jpg'
         self.assertIsInstance(extract.load(test_image_path), np.ndarray)
 
 
 class TestExtractCrops(unittest.TestCase):
+
+    '''
+        Test case for extract_crops() function.
+    '''
 
     def test_extract_crops(self):
         dummy_np_image = np.zeros([1080, 1920, 3], dtype=np.uint8)
@@ -26,6 +35,10 @@ class TestExtractCrops(unittest.TestCase):
 
 
 class TestOcr(unittest.TestCase):
+
+    '''
+        Test case for ocr() function.
+    '''
 
     def test_ocr(self):
         dummy_char_one = np.zeros([20, 20, 3], dtype=np.uint8)
@@ -43,6 +56,11 @@ class TestOcr(unittest.TestCase):
 
 
 class IntegrationTest(unittest.TestCase):
+
+    '''
+        Integration test, running the whole processing
+        pipeline on 3 test images.
+    '''
 
     def test_integration(self):
         test_images = ['./test_images/ScreenShot_19-02-07_16-29-44-000.jpg',
