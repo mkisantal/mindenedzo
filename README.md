@@ -1,6 +1,6 @@
 # Text processing from still images
 
-This repository contains a solutin for the Omnicoach technical assignment. The task is to extract textual information from still images.
+This repository contains a solutin for the [e-sport startup] technical assignment. Probably not the best possible solution as I didn't end up hired. The task is to extract textual information from still images.
 
   - The solution code is in `extract.py`
   - Corresponding unit and integration tests in `test.py`
